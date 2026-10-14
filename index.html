@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="ht">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="theme-color" content="#071b13">
+<title>BABA FOOTBALL MOBILE</title>
+
+<style>
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  margin: 0;
+  background: #071b13;
+  color: white;
+  font-family: Arial, sans-serif;
+  text-align: center;
+  overflow-x: hidden;
+  user-select: none;
+}
+
+header {
+  padding: 17px 10px 10px;
+}
+
+header h1 {
+  margin: 0;
+  font-size: clamp(24px, 6vw, 36px);
+  font-weight: 1000;
+  letter-spacing: 2px;
+}
+
+header h1 span {
+  color: #46ff8b;
+}
+
+.subtitle {
+  color: #a8c6b5;
+  font-size: 11px;
+  letter-spacing: 3px;
+  margin-top: 6px;
+}
+
+.stats {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  padding: 10px;
+  max-width: 500px;
+  margin: auto;
+}
+
+.stat {
+  flex: 1;
+  background: #102c20;
+  border: 1px solid #24543b;
+  border-radius: 12px;
+  padding: 10px 5px;
+}
+
+.stat small {
+  color: #9ebcac;
+  font-size: 10px;
+  letter-spacing: 1px;
+}
+
+.stat strong {
+  display: block;
+  font-size: 25px;
+  margin-top: 5px;
+}
+
+#score {
+  color: #46ff8b;
+}
+
+#game {
+  width: min(94vw, 430px);
+  margin: auto;
+  position: relative;
+}
+
+canvas {
+  width: 100%;
+  height: auto;
+  display: block;
+  border: 3px solid #d9ffe6;
+  border-radius: 13px;
+  background: #188143;
+  touch-action: none;
+}
+
+#message {
+  position: absolute;
+  top: 43%;
+  left: 5%;
+  width: 90%;
+  font-size: clamp(20px, 5vw, 30px);
+  font-weight: 1000;
+  color: white;
+  text-shadow: 0 3px 5px #000;
+  pointer-events: none;
+}
+
+#start {
+  margin-top: 12px;
+  width: min(94vw, 430px);
+  border: none;
+  border-radius: 12px;
+  padding: 15px;
+  background: linear-gradient(90deg, #17d96b, #83ff70);
+  color: #062313;
+  font-size: 16px;
+  font-weight: 1000;
+  cursor: pointer;
+}
+
+.controls {
+  width: min(94vw, 430px);
+  margin: 14px auto 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.dpad {
+  display: grid;
+  grid-template-columns: repeat(3, 52px);
+  grid-template-rows: repeat(2, 48px);
+  gap: 5px;
+}
+
+button.control {
+  border: 1px solid #316b4b;
+  border-radius: 12px;
+  background: #153b29;
+  color: white;
+  font-size: 22px;
+  font-weight: bold;
+  touch-action: none;
+}
+
+button.control:active {
+  background: #277447;
+  transform: scale(.96);
+}
+
+#up {
+  grid-column: 2;
+}
+
+#left {
+  grid-column: 1;
+  grid-row: 2;
+}
+
+#down {
+  grid-column: 2;
+  grid-row: 2;
+}
+
+#right {
+  grid-column: 3;
+  grid-row: 2;
+}
+
+#shoot {
+  width: 112px;
+  height: 100px;
+  border-radius: 50%;
+  border: 4px solid #b6ffcb;
+  background: linear-gradient(145deg, #24e875, #087d3d);
+  color: white;
+  font-size: 17px;
+  font-weight: 1000;
+  box-shadow: 0 5px 0 #064d28;
+}
+
+.help {
+  color: #a8c6b5;
+  font-size: 12px;
+  padding: 8px 15px 20px;
+  line-height: 1.6;
+}
+
+footer {
+  color: #527963;
+  font-size: 10px;
+  padding: 12px;
+  letter-spacing: 2px;
+}
+
+@media (max-width: 360px) {
+  .dpad {
+    grid-template-columns: repeat(3, 44px);
+    grid-template-rows: repeat(2, 43px);
+  }
+
+  #shoot {
+    width: 92px;
+    height: 92px;
+    font-size: 15px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h1>BABA <span>FOOTBALL</span></h1>
+  <div class="subtitle">MOBILE FOOTBALL CHALLENGE</div>
+</header>
+
+<div class="stats">
+  <div class="stat">
+    <small>GOALS</small>
+    <strong id="score">0</strong>
+  </div>
+
+  <div class="stat">
+    <small>TIME</small>
+    <strong id="time">60</strong>
+  </div>
+
+  <div class="stat">
+    <small>SHOTS</small>
+    <strong id="shots">0</strong>
+  </div>
+</div>
+
+<div id="game">
+  <canvas id="field" width="480" height="700"></canvas>
+  <div id="message">BABA FOOTBALL ⚽</div>
+</div>
+
+<button id="start">▶ KÒMANSE MATCH LA</button>
+
+<div class="controls">
+  <div class="dpad">
+    <button class="control" id="up" data-dir="up">▲</button>
+    <button class="control" id="left" data-dir="left">◀</button>
+    <button class="control" id="down" data-dir="down">▼</button>
+    <button class="control" id="right" data-dir="right">▶</button>
+  </div>
+
+  <button class="control" id="shoot">⚽<br>TIRE!</button>
+</div>
+
+<div class="help">
+  Deplase jwè BABA a ak flèch yo.<br>
+  Pwoche bò gòl la epi peze TIRE pou make gòl.<br>
+  Evite gadyen an pou w ka genyen match la!
+</div>
+
+<footer>BABA FOOTBALL MOBILE • 2D GAME</footer>
+
+<script>
+(() => {
+  "use strict";
+
+  const canvas = document.getElementById("field");
+  const ctx = canvas.getContext("2d");
+
+  const scoreEl = document.getElementById("score");
+  const timeEl = document.getElementById("time");
+  const shotsEl = document.getElementById("shots");
+  const messageEl = document.getElementById("message");
+  const startBtn = document.getElementById("start");
+
+  const W = canvas.width;
+  const H = canvas.height;
+
+  let running = false;
+  let score = 0;
+  let shots = 0;
+  let time = 60;
+  let timer = null;
+  let lastFrame = 0;
+  let animationId = null;
+  let shotCooldown = false;
+  let messageUntil = 0;
+  let messageText = "BABA FOOTBALL ⚽";
+
+  const keys = {
+    up: false,
+    down: false,
+    left: false,
+    right: false
+  };
+
+  const player = {
+    x: W / 2,
+    y: H - 125,
+    r: 19,
+    speed: 235
+  };
+
+  const ball = {
+    x: W / 2,
+    y: H - 158,
+    r: 9,
+    vx: 0,
+    vy: 0,
+    flying: false
+  };
+
+  const keeper = {
+    x: W / 2,
+    y: 94,
+    w: 76,
+    h: 23,
+    speed: 170,
+    dir: 1
+  };
+
+  const particles = [];
+
+  function say(text, duration = 1300) {
+    messageText = text;
+    messageUntil = performance.now() + duration;
+    messageEl.textContent = text;
+  }
+
+  function resetPositions() {
+    player.x = W / 2;
+    player.y = H - 125;
+
+    ball.x = player.x;
+    ball.y = player.y - 30;
+    ball.vx = 0;
+    ball.vy = 0;
+    ball.flying = false;
+
+    keeper.x = W / 2;
+    keeper.dir = Math.random() > 0.5 ? 1 : -1;
+
+    shotCooldown = false;
+    particles.length = 0;
+  }
+
+  function resetGame() {
+    clearInterval(timer);
+
+    running = false;
+    score = 0;
+    shots = 0;
+    time = 60;
+
+    scoreEl.textContent = score;
+    shotsEl.textContent = shots;
+    timeEl.textContent = time;
+
+    resetPositions();
+
+    say("Peze KÒMANSE pou jwe!", 999999);
+    startBtn.disabled = false;
+    startBtn.textContent = "▶ KÒMANSE MATCH LA";
+
+    draw();
+  }
+
+  function startGame() {
+    if (running) return;
+
+    if (time <= 0) {
+      resetGame();
+    }
+
+    running = true;
+    startBtn.disabled = true;
+    startBtn.textContent = "MATCH AN KOU...";
+
+    say("ALE BABA! MAKE GÒL! 🔥", 1800);
+
+    clearInterval(timer);
+
+    timer = setInterval(() => {
+      if (!running) return;
+
+      time = Math.max(0, time - 1);
+      timeEl.textContent = time;
+
+      if (time <= 0) {
+        endGame();
+      }
+    }, 1000);
+
+    lastFrame = performance.now();
+
+    if (animationId !== null) {
+      cancelAnimationFrame(animationId);
+    }
+
+    animationId = requestAnimationFrame(loop);
+  }
+
+  function endGame() {
+    running = false;
+    clearInterval(timer);
+
+    startBtn.disabled = false;
+    startBtn.textContent = "↻ REKÒMANSE MATCH LA";
+
+    say("FIN MATCH! " + score + " GÒL ⚽", 999999);
+  }
+
+  function shoot() {
+    if (!running || ball.flying || shotCooldown) return;
+
+    shots++;
+    shotsEl.textContent = shots;
+
+    shotCooldown = true;
+    ball.flying = true;
+
+    // Tire a pran direksyon gòl ki anlè teren an.
+    const targetX = keeper.x;
+    const difference = targetX - ball.x;
+
+    ball.vx = difference * 1.25;
+    ball.vy = -670;
+
+    say("TIRE!!! ⚽", 500);
+
+    setTimeout(() => {
+      shotCooldown = false;
+    }, 350);
+  }
+
+  function movePlayer(dx, dy, dt) {
+    if (!running || ball.flying) return;
+
+    const length = Math.hypot(dx, dy);
+
+    if (length === 0) return;
+
+    dx /= length;
+    dy /= length;
+
+    player.x += dx * player.speed * dt;
+    player.y += dy * player.speed * dt;
+
+    player.x = Math.max(35, Math.min(W - 35, player.x));
+    player.y = Math.max(155, Math.min(H - 45, player.y));
+
+    // Balon an swiv jwè a.
+    ball.x = player.x;
+    ball.y = player.y - 29;
+  }
+
+  function update(dt) {
+    if (!running) return;
+
+    let dx = 0;
+    let dy = 0;
+
+    if (keys.left) dx -= 1;
+    if (keys.right) dx += 1;
+    if (keys.up) dy -= 1;
+    if (keys.down) dy += 1;
+
+    movePlayer(dx, dy, dt);
+
+    // Gadyen an ap deplase agoch ak adwat.
+    keeper.x += keeper.speed * keeper.dir * dt;
+
+    if (keeper.x > W - 65) {
+      keeper.x = W - 65;
+      keeper.dir = -1;
+    }
+
+    if (keeper.x < 65) {
+      keeper.x = 65;
+      keeper.dir = 1;
+    }
+
+    // Fizik balon an pandan tir la.
+    if (ball.flying) {
+      ball.x += ball.vx * dt;
+      ball.y += ball.vy * dt;
+
+      ball.vx *= Math.pow(0.995, dt * 60);
+
+      // Gadyen an bloke balon an.
+      const keeperLeft = keeper.x - keeper.w / 2;
+      const keeperRight = keeper.x + keeper.w / 2;
+
+      const hitsKeeper =
+        ball.y - ball.r < keeper.y + keeper.h &&
+        ball.y + ball.r > keeper.y - keeper.h &&
+        ball.x > keeperLeft - ball.r &&
+        ball.x < keeperRight + ball.r;
+
+      if (hitsKeeper) {
+        ball.flying = false;
+        say("GADYEN AN BLOKE L! 🧤", 1000);
+
+        setTimeout(() => {
+          if (running && !ball.flying) resetPositions();
+        }, 650);
+
+        return;
+      }
+
+      // Gòl la sitiye nan mitan liy anlè a.
+      if (ball.y < 32) {
+        if (ball.x > 155 && ball.x < 325) {
+          score++;
+          scoreEl.textContent = score;
+
+          say("GOOOOOOL!!! ⚽🔥", 1300);
+
+          createConfetti(ball.x, 35);
+
+          setTimeout(() => {
+            if (running) resetPositions();
+          }, 750);
+        } else {
+          say("TIR LA DEYÒ! ❌", 1000);
+
+          setTimeout(() => {
+            if (running) resetPositions();
+          }, 650);
+        }
+
+        ball.flying = false;
+        return;
+      }
+
+      // Balon an soti sou kote teren an.
+      if (ball.x < 12 || ball.x > W - 12 || ball.y > H + 20) {
+        ball.flying = false;
+        say("BALON AN DEYÒ!", 900);
+
+        setTimeout(() => {
+          if (running) resetPositions();
+        }, 600);
+      }
+    }
+
+    updateParticles(dt);
+  }
+
+  function createConfetti(x, y) {
+    for (let i = 0; i < 24; i++) {
+      particles.push({
+        x,
+        y,
+        vx: (Math.random() - 0.5) * 260,
+        vy: -Math.random() * 250,
+        life: 1,
+        size: 3 + Math.random() * 5
+      });
+    }
+  }
+
+  function updateParticles(dt) {
+    for (let i = particles.length - 1; i >= 0; i--) {
+      const p = particles[i];
+
+      p.x += p.vx * dt;
+      p.y += p.vy * dt;
+      p.vy += 300 * dt;
+      p.life -= dt * 1.2;
+
+      if (p.life <= 0) particles.splice(i, 1);
+    }
+  }
+
+  function drawField() {
+    // Zèb la.
+    for (let i = 0; i < 10; i++) {
+      ctx.fillStyle = i % 2 === 0 ? "#208b43" : "#187a39";
+      ctx.fillRect(0, i * 70, W, 70);
+    }
+
+    ctx.strokeStyle = "rgba(255,255,255,0.8)";
+    ctx.lineWidth = 3;
+
+    // Fwontyè teren an.
+    ctx.strokeRect(20, 18, W - 40, H - 36);
+
+    // Liy mitan teren an.
+    ctx.beginPath();
+    ctx.moveTo(20, H / 2);
+    ctx.lineTo(W - 20, H / 2);
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.arc(W / 2, H / 2, 67, 0, Math.PI * 2);
+    ctx.stroke();
+
+    // Sifas gòl la.
+    ctx.strokeRect(125, 18, 230, 125);
+    ctx.strokeRect(172, 18, 136, 62);
+
+    // Gòl la.
+    ctx.fillStyle = "#dfffee";
+    ctx.fillRect(155, 10, 170, 15);
+
+    ctx.strokeStyle = "#ffffff";
+    ctx.lineWidth = 5;
+    ctx.strokeRect(155, 10, 170, 42);
+
+    // Filè gòl la.
+    ctx.strokeStyle = "rgba(255,255,255,0.4)";
+    ctx.lineWidth = 1;
+
+    for (let x = 165; x < 325; x += 16) {
+      ctx.beginPath();
+      ctx.moveTo(x, 12);
+      ctx.lineTo(x, 49);
+      ctx.stroke();
+    }
+
+    for (let y = 20; y < 50; y += 10) {
+      ctx.beginPath();
+      ctx.moveTo(157, y);
+      ctx.lineTo(323, y);
+      ctx.stroke();
+    }
+  }
+
+  function drawPlayer() {
+    // Lonbraj.
+    ctx.fillStyle = "rgba(0,0,0,0.25)";
+    ctx.beginPath();
+    ctx.ellipse(player.x, player.y + 13, 22, 8, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Janm.
+    ctx.strokeStyle = "#101010";
+    ctx.lineWidth = 6;
+    ctx.lineCap = "round";
+
+    ctx.beginPath();
+    ctx.moveTo(player.x - 6, player.y + 10);
+    ctx.lineTo(player.x - 9, player.y + 21);
+    ctx.moveTo(player.x + 6, player.y + 10);
+    ctx.lineTo(player.x + 9, player.y + 21);
+    ctx.stroke();
+
+    // Mayo.
+    ctx.fillStyle = "#ffe02f";
+    ctx.beginPath();
+    ctx.arc(player.x, player.y, 17, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.strokeStyle = "#ffffff";
+    ctx.lineWidth = 3;
+    ctx.stroke();
+
+    // Nimewo jwè a.
+    ctx.fillStyle = "#172116";
+    ctx.font = "bold 13px Arial";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText("10", player.x, player.y);
+
+    // Tèt.
+    ctx.fillStyle = "#a96739";
+    ctx.beginPath();
+    ctx.arc(player.x, player.y - 23, 10, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Non jwè a.
+    ctx.fillStyle = "#ffffff";
+    ctx.font = "bold 12px Arial";
+    ctx.fillText("BABA", player.x, player.y + 38);
+  }
+
+  function drawKeeper() {
+    // Lonbraj.
+    ctx.fillStyle = "rgba(0,0,0,0.25)";
+    ctx.fillRect(keeper.x - 36, keeper.y + 15, 72, 7);
+
+    // Kò gadyen an.
+    ctx.fillStyle = "#f44336";
+    ctx.fillRect(
+      keeper.x - keeper.w / 2,
+      keeper.y - 8,
+      keeper.w,
+      24
+    );
+
+    ctx.strokeStyle = "#ffffff";
+    ctx.lineWidth = 2;
+    ctx.strokeRect(
+      keeper.x - keeper.w / 2,
+      keeper.y - 8,
+      keeper.w,
+      24
+    );
+
+    // Gan.
+    ctx.fillStyle = "#f9e54c";
+    ctx.beginPath();
+    ctx.arc(keeper.x - 43, keeper.y + 4, 10, 0, Math.PI * 2);
+    ctx.arc(keeper.x + 43, keeper.y + 4, 10, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = "white";
+    ctx.font = "bold 11px Arial";
+    ctx.textAlign = "center";
+    ctx.fillText("GADYEN", keeper.x, keeper.y - 15);
+  }
+
+  function drawBall() {
+    // Lonbraj balon an.
+    ctx.fillStyle = "rgba(0,0,0,0.25)";
+    ctx.beginPath();
+    ctx.ellipse(ball.x, ball.y + 8, 11, 5, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = "#ffffff";
+    ctx.beginPath();
+    ctx.arc(ball.x, ball.y, ball.r, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.strokeStyle = "#222222";
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    ctx.fillStyle = "#222222";
+    ctx.beginPath();
+    ctx.arc(ball.x, ball.y, 3.5, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  function drawParticles() {
+    for (const p of particles) {
+      ctx.globalAlpha = Math.max(0, p.life);
+      ctx.fillStyle = "#a5ff5b";
+      ctx.fillRect(p.x, p.y, p.size, p.size);
+    }
+
+    ctx.globalAlpha = 1;
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+
+    drawField();
+    drawKeeper();
+    drawPlayer();
+    drawBall();
+    drawParticles();
+  }
+
+  function loop(timestamp) {
+    if (!running) {
+      draw();
+      animationId = null;
+      return;
+    }
+
+    const dt = Math.min((timestamp - lastFrame) / 1000, 0.035);
+    lastFrame = timestamp;
+
+    update(dt);
+    draw();
+
+    if (performance.now() > messageUntil) {
+      messageEl.textContent = "";
+    }
+
+    animationId = requestAnimationFrame(loop);
+  }
+
+  // Kontwòl mobil: kenbe bouton an pou deplase.
+  document.querySelectorAll("[data-dir]").forEach(button => {
+    const direction = button.dataset.dir;
+
+    button.addEventListener("pointerdown", event => {
+      event.preventDefault();
+      keys[direction] = true;
+
+      try {
+        button.setPointerCapture(event.pointerId);
+      } catch (_) {}
+    });
+
+    const release = event => {
+      event.preventDefault();
+      keys[direction] = false;
+    };
+
+    button.addEventListener("pointerup", release);
+    button.addEventListener("pointercancel", release);
+    button.addEventListener("lostpointercapture", () => {
+      keys[direction] = false;
+    });
+  });
+
+  document.getElementById("shoot").addEventListener("pointerdown", event => {
+    event.preventDefault();
+    shoot();
+  });
+
+  startBtn.addEventListener("click", startGame);
+
+  // Kontwòl klavye sou òdinatè.
+  document.addEventListener("keydown", event => {
+    const map = {
+      ArrowUp: "up",
+      ArrowDown: "down",
+      ArrowLeft: "left",
+      ArrowRight: "right"
+    };
+
+    if (map[event.key]) {
+      event.preventDefault();
+      keys[map[event.key]] = true;
+    }
+
+    if (event.code === "Space") {
+      event.preventDefault();
+      shoot();
+    }
+  });
+
+  document.addEventListener("keyup", event => {
+    const map = {
+      ArrowUp: "up",
+      ArrowDown: "down",
+      ArrowLeft: "left",
+      ArrowRight: "right"
+    };
+
+    if (map[event.key]) {
+      keys[map[event.key]] = false;
+    }
+  });
+
+  // Pa jwèt la lè navigatè a ale an background.
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) {
+      keys.up = false;
+      keys.down = false;
+      keys.left = false;
+      keys.right = false;
+    }
+  });
+
+  resetGame();
+})();
+</script>
+
+</body>
+</html>
